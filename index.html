@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberAkademi.Org | Kodaryum</title>
+    <style>
+        * { box-sizing: border-box; }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #060606;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: #131417;
+            padding: 10px 20px;
+            border-bottom: 1px solid #343436;
+            display: flex;
+            flex-direction: column;
+        }
+        header .brand { color: #fff; font-weight: bold; font-size: 18px; letter-spacing: 1px; }
+        header .sub-brand { color: #aeaeae; font-size: 12px; margin-top: 2px; }
+        .main-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            position: relative;
+        }
+        #top-panel {
+            display: flex;
+            height: 45%;
+            min-height: 100px;
+            background: #131417;
+        }
+        .editor-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #343436;
+        }
+        .label {
+            background: #1d1e22;
+            padding: 4px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #aaa;
+            border-top: 2px solid transparent;
+        }
+        .html-l { border-color: #ff3c41; }
+        .css-l  { border-color: #0ebeff; }
+        .js-l   { border-color: #fcd000; }
+        textarea {
+            flex: 1;
+            background: #1d1e22;
+            color: #d5d7de;
+            border: none;
+            padding: 10px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+        }
+        #resizer {
+            height: 8px;
+            background: #343436;
+            cursor: ns-resize;
+            transition: background 0.2s;
+        }
+        #resizer:hover { background: #444857; }
+        #bottom-panel {
+            flex: 1;
+            background: white;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">CyberAkademi.Org</div>
+    <div class="sub-brand">Kodaryum</div>
+</header>
+
+<div class="main-wrapper">
+    <div id="top-panel">
+        <div class="editor-box">
+            <div class="label html-l">HTML</div>
+            <textarea id="html" spellcheck="false"></textarea>
+        </div>
+        <div class="editor-box">
+            <div class="label css-l">CSS</div>
+            <textarea id="css" spellcheck="false"></textarea>
+        </div>
+        <div class="editor-box">
+            <div class="label js-l">JS</div>
+            <textarea id="js" spellcheck="false"></textarea>
+        </div>
+    </div>
+
+    <div id="resizer"></div>
+
+    <div id="bottom-panel">
+        <iframe id="output"></iframe>
+    </div>
+</div>
+
+<script>
+    const htmlIn = document.getElementById('html');
+    const cssIn = document.getElementById('css');
+    const jsIn = document.getElementById('js');
+    const output = document.getElementById('output');
+    const resizer = document.getElementById('resizer');
+    const topPanel = document.getElementById('top-panel');
+
+    function update() {
+        const doc = output.contentDocument || output.contentWindow.document;
+        doc.open();
+        doc.write(`
+            <html>
+                <style>${cssIn.value}</style>
+                <body>
+                    ${htmlIn.value}
+                    <script>${jsIn.value}<\/script>
+                </body>
+            </html>
+        `);
+        doc.close();
+    }
+
+    [htmlIn, cssIn, jsIn].forEach(el => el.addEventListener('input', update));
+
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'ns-resize';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        let offsetTop = document.querySelector('header').offsetHeight;
+        let pointerY = e.clientY - offsetTop;
+        if (pointerY > 50 && pointerY < window.innerHeight - 150) {
+            topPanel.style.height = pointerY + 'px';
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isResizing = false;
+        document.body.style.cursor = 'default';
+    });
+
+    htmlIn.value = '<div class="welcome">\n  <h1>CyberAkademi</h1>\n  <p>Çubuğu aşağı yukarı kaydırırken imleci çubuğun üstünde basılı tut!</p>\n</div>';
+    cssIn.value = 'body { background: #111; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }\n.welcome { text-align: center; border: 2px solid #0ebeff; padding: 20px; border-radius: 10px; }';
+    
+    update();
+</script>
+
+</body>
+</html>
